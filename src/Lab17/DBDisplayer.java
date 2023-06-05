@@ -10,16 +10,16 @@ import java.sql.*;
 
 public class DBDisplayer extends JDialog {
     private JPanel contentPane;
-    private JTable table;
     private JTextField requestField;
     private JButton requestButton;
     private JList selectList;
     private JButton selectButton;
-    private JPanel upperPanel;
     private JPanel lowerPanel;
     private JComboBox requestComboBox;
     private JPanel requestPanel;
     private JButton histogramButton;
+    private JScrollPane scrollPane;
+    private JList idList;
     private JButton buttonOK;
     private JButton buttonCancel;
 
@@ -29,7 +29,6 @@ public class DBDisplayer extends JDialog {
     private Connection conn;
     private Statement statement;
     private ResultSet resultSet;
-    private DefaultTableModel tableModel;
 
     final static String[] tables = {"bank", "charterer", "members", "race", "ships"};
     final String[] requests = {"INSERT", "UPDATE", "DELETE", "SELECT"};
@@ -54,13 +53,12 @@ public class DBDisplayer extends JDialog {
         gbc.insets.left = 5;
 
 
-        tableModel = (DefaultTableModel) table.getModel();
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         DefaultListModel<String> model = (DefaultListModel<String>) selectList.getModel();
         for (var table:
-             tables) {
+                tables) {
             model.addElement(table);
         }
 
@@ -201,27 +199,14 @@ public class DBDisplayer extends JDialog {
     }
 
     void select(String table, String request){
-        ((DefaultTableModel)(this.table.getModel())).setRowCount(0);
-        ((DefaultTableModel)(this.table.getModel())).setColumnCount(0);
-        this.table.repaint();
         try {
-
             resultSet = statement.executeQuery(request == null ? "SELECT * FROM " + table + ";" : request);
             ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            String[] tableData = new String[columnCount];
-            for (int i = 0; i < columnCount; i++){
-                tableModel.addColumn(metaData.getColumnName(i + 1));
-                tableData[i] = metaData.getColumnName(i + 1);
-            }
-            tableModel.addRow(tableData);
+            DefaultListModel<String> model = new DefaultListModel<>();
             while (resultSet.next()) {
-                tableData = new String[columnCount];
-                for (int i = 0; i < columnCount; i++) {
-                    tableData[i] = resultSet.getObject(metaData.getColumnName(i + 1)).toString();
-                }
-                tableModel.addRow(tableData);
+                model.addElement(resultSet.getObject(metaData.getColumnName(1)).toString());
             }
+            idList.setModel(model);
         }
         catch (SQLException ex){
             System.out.println("Îøèáêà â select\n" + ex.getMessage());
@@ -272,9 +257,9 @@ public class DBDisplayer extends JDialog {
 
     void execute(String request){
         try {
-                statement.executeUpdate(request);
+            statement.executeUpdate(request);
 
-            } catch (SQLException ex){
+        } catch (SQLException ex){
             System.out.println("Îøèáêà â execute: " + ex.getMessage());
 
         }

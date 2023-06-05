@@ -1,5 +1,7 @@
 package Lab17;
 
+import Lab17.DBDisplayer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ public class Histogram extends JFrame{
     public void paint(Graphics g){
         int k = (height - 50) / Arrays.stream(rowsCounts).max().getAsInt();
         for (int i = 0; i < rowsCounts.length; i++){
-            g.setColor(Color.orange);//jjklj
+            g.setColor(Color.orange);
             int x = offset * i + columnWidth;
             int y = height - k * rowsCounts[i];
             g.fillRect(x,
