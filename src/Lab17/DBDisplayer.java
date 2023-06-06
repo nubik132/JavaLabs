@@ -20,6 +20,7 @@ public class DBDisplayer extends JDialog {
     private JButton histogramButton;
     private JScrollPane scrollPane;
     private JList idList;
+    private JTextArea rowTextArea;
     private JButton buttonOK;
     private JButton buttonCancel;
 
@@ -127,7 +128,63 @@ public class DBDisplayer extends JDialog {
                 }
             }
         });
+        idList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                String selectRowRequest = getSelectRowString((String)selectList.getSelectedValue(), idList.getSelectedIndex() + 1);
+                String rowString = getResultFromRowSelection(selectRowRequest);
+                rowTextArea.setText(rowString);
+            }
+        });
     }
+
+    private String getSelectRowString(String table, int row){
+        String id = "";
+        try {
+            resultSet = statement.executeQuery("SELECT * FROM " + table);
+            id = resultSet.getMetaData().getColumnName(1);
+        }
+        catch (SQLException ex){
+            System.out.println(ex.getMessage());
+        }
+        return "SELECT * FROM " + table + " WHERE " + id + " = " + row;
+    }
+
+    private String getResultFromRowSelection(String request){
+        try {
+           resultSet = statement.executeQuery(request);
+        } catch (SQLException ex){
+            System.out.println(ex.getMessage());
+        }
+        String result = "";
+        int columnCount = getColumnCount();
+        try {
+            var metaData = resultSet.getMetaData();
+            resultSet.next();
+            for (int i = 1; i <= columnCount; i++) {
+                String columnName = metaData.getColumnName(i);
+                result += columnName + ": " + resultSet.getObject(i).toString() + "\n";
+            }
+        }
+        catch (SQLException ex){
+            System.out.println("getResultFromRowSelection " + ex.getMessage());
+        }
+
+        return result;
+    }
+
+    private int getColumnCount(){
+        int count = 0;
+        try {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            count = metaData.getColumnCount();
+        }
+        catch (SQLException ex){
+            System.out.println(ex.getMessage());
+        }
+        return count;
+    }
+
 
     private void onCancel() {
         dispose();
