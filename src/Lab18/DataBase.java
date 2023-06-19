@@ -33,7 +33,7 @@ public class DataBase {
     public ResultSet getResultSet(){
         return conn.getResultSet();
     }
-    public DataBase getInstance(){
+    public static DataBase getInstance(){
         if (instance == null){
             instance = new DataBase();
             instance.connect();

@@ -195,7 +195,7 @@ public class DBDisplayer extends JDialog {
     }
 
     private void prepareDB(){
-            DataBase dataBase = new DataBase();
+            DataBase dataBase = DataBase.getInstance();
             conn = dataBase.getConnection();
             statement = dataBase.getStatement();
     }
